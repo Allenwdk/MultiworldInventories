@@ -1,0 +1,57 @@
+plugins {
+    id 'fabric-loom' version '1.13.3'
+    id 'maven-publish'
+}
+
+version = '0.1.1'
+group = 'multiworld.inventories'
+
+base {
+    archivesName = 'MultiworldInventories'
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://maven.fabricmc.net/" }
+    maven { url "https://maven.ladysnake.org/releases" }
+    maven { url "https://jitpack.io" }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:1.21.11"
+    mappings "net.fabricmc:intermediary:1.21.11:v2"
+    modImplementation "net.fabricmc:fabric-loader:0.16.14"
+    modImplementation("net.fabricmc.fabric-api:fabric-api:0.140.2+1.21.11") {
+        exclude group: "net.fabricmc.fabric-api", module: "fabric-content-registries-v0"
+    }
+    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-base:7.3.0"
+    modImplementation "dev.onyxstudios.cardinal-components-api:cardinal-components-entity:7.3.0"
+}
+
+processResources {
+    inputs.property "version", project.version
+    filteringCharset "UTF-8"
+
+    filesMatching("fabric.mod.json") {
+        expand "version": project.version
+    }
+}
+
+def targetJavaVersion = 21
+tasks.withType(JavaCompile).configureEach {
+    it.options.encoding = "UTF-8"
+    it.options.release = targetJavaVersion
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+    withSourcesJar()
+}
+
+jar {
+    from("LICENSE") {
+        rename { "${it}_${project.archivesName}"}
+    }
+}
